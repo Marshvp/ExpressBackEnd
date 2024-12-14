@@ -7,6 +7,8 @@ const prisma = new PrismaClient()
 
 exports.addNewUser = async (username, password, email, isAdmin) => {
     try {
+        console.log("hit inside");
+        
         const hashedPassword = await bcrypt.hash(password, 10)
         const result = await prisma.users.create({
             data: {
