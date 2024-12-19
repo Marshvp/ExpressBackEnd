@@ -1,6 +1,7 @@
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const SECRET_KEY = process.env.JWT_SECRET;
+const jwt = require("jsonwebtoken");
 const db = require("../prisma/queries");
 
 exports.addUser = [
@@ -97,6 +98,7 @@ exports.usersLogin = [
         data: req.body,
       });
     }
+    console.log("Request Body: ", req.body);
     const { email, password } = req.body;
     try {
       const user = await db.checkEmailInUse(email);
@@ -117,7 +119,7 @@ exports.usersLogin = [
         user: { id: user.id, email: user.email },
       });
     } catch (error) {
-      conosle.error(error);
+      console.error(error);
       res.status(500).json({ message: "Server Error" });
     }
   },
