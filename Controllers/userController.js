@@ -1,4 +1,6 @@
 const { body, validationResult } = require("express-validator");
+const bcrypt = require("bcryptjs");
+const SECRET_KEY = process.env.JWT_SECRET;
 const db = require("../prisma/queries");
 
 exports.addUser = [
@@ -63,5 +65,60 @@ exports.addUser = [
     res.json({
       message: "New user created successfully",
     });
+  },
+];
+
+exports.usersLogin = [
+  body("email")
+    .isEmail()
+    .withMessage("Must be a valid email type")
+    .bail()
+    .custom(async (value) => {
+      const user = await db.checkEmailInUse(value);
+      if (!user) {
+        throw new Error("Email or Password not recognised");
+      } else {
+        return true;
+      }
+    }),
+
+  body("password")
+    .isLength({ min: 6 })
+    .withMessage("Must be a valid Length")
+    .notEmpty()
+    .withMessage("Password Required"),
+
+  async (req, res, next) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        errors: errors.array(),
+        data: req.body,
+      });
+    }
+    const { email, password } = req.body;
+    try {
+      const user = await db.checkEmailInUse(email);
+      if (!user) {
+        return res.status(404).json({ message: "User Not Found in DB" });
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return res.status(401).json({ message: "Invalid email or Password" });
+      }
+      const token = jwt.sign({ userId: user.id }, SECRET_KEY, {
+        expiresIn: "1h",
+      });
+      return res.status(200).json({
+        message: "Login successful",
+        token,
+        user: { id: user.id, email: user.email },
+      });
+    } catch (error) {
+      conosle.error(error);
+      res.status(500).json({ message: "Server Error" });
+    }
   },
 ];
