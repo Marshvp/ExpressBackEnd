@@ -111,12 +111,12 @@ exports.usersLogin = [
         return res.status(401).json({ message: "Invalid email or Password" });
       }
       const token = jwt.sign({ userId: user.id }, SECRET_KEY, {
-        expiresIn: "1h",
+        expiresIn: "10m",
       });
       return res.status(200).json({
         message: "Login successful",
         token,
-        user: { id: user.id, email: user.email },
+        user: { id: user.id, email: user.email, username: user.userName },
       });
     } catch (error) {
       console.error(error);
