@@ -56,10 +56,10 @@ exports.findUserById = async (id) => {
   try {
     const result = await prisma.users.findFirst({
       where: {
-        userId: id,
+        id: id,
       },
     });
-    return;
+    return result;
   } catch (error) {
     console.error("Error in db findUserById", error);
     throw new Error(error);
