@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const passport = require("passport"); // Import passport
 require("./middleware/passportConfig.js")(passport);
+const multer = require("multer");
 const blogRouter = require("./Routes/blogRoutes");
 const userRouter = require("./Routes/userRoutes");
 const commentRouter = require("./Routes/commentRoutes");
